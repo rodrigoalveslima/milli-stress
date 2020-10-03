@@ -9,14 +9,14 @@ is prime.
 
 ### Building
 ```
-make
+$ make
 ```
 
 ### Running
 To check if `n` is prime every `interval` seconds for `duration` seconds or
 `count` times:
 ```
-./milli-stress [n] [duration] [interval] [count]
+$ ./milli-stress [n] [duration] [interval] [count]
 ```
 
 If `duration = 0` and `count = 0`, the program runs indefinitely.
@@ -61,14 +61,14 @@ L3 cache:            25600K
 ```
 
 The machine was hosted on CloudLab and an identical setup can be instantiated
-with the public CloudLab profile `Infosphere/OnePCUbuntu14.04LTS64bit`.
+with the public CloudLab profile `Infosphere/C8220-Ubuntu18.04LTS64bit`.
 
 To simplify the analysis, disable hyper-threading and all but one CPU core. For
 a C8220 machine with 40 virtual cores (`cpu0`, `cpu1`, ..., `cpu39`):
 ```
-sudo su
-for i in {1..39}; do echo "0" > /sys/devices/system/cpu/cpu$i/online; done
-exit
+$ sudo su
+# for i in {1..39}; do echo "0" > /sys/devices/system/cpu/cpu$i/online; done
+# exit
 ```
 
 Run `lscpu` and check that only `cpu0` is on-line:
@@ -83,18 +83,18 @@ For more reproducible results, disable any dynamic overclocking feature like
 Intel TurboBoost. For the `intel_pstate` power scaling driver used in modern
 Intel CPUs:
 ```
-sudo su
-echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
-exit
+$ sudo su
+# echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
+# exit
 ```
 
 Also, install the `cpupower` utility and activate the `performance` frequency
 governor so the CPU runs at maximum frequency all the time. For Ubuntu 18.04
 (Linux 4.0.15):
 ```
-sudo apt-get update
-sudo apt-get install linux-tools-common linux-tools-4.15.0-101-generic
-sudo cpupower frequency-set -g performance
+$ sudo apt-get update
+$ sudo apt-get install linux-tools-common linux-tools-4.15.0-101-generic
+$ sudo cpupower frequency-set -g performance
 ```
 
 Run `cpupower frequency-info` and check that `cpu0` is running at maximum
@@ -123,6 +123,6 @@ analyzing CPU 0:
 
 To monitor CPU utilization, install Collectl:
 ```
-sudo apt-get update
-sudo apt-get install collectl
+$ sudo apt-get update
+$ sudo apt-get install collectl
 ```
