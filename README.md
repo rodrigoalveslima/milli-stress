@@ -149,3 +149,65 @@ saturations. Also keep in mind that, according to the *Sampling Theorem*,
 we need to sample at twice the frequency of the phenomenona we want to observe,
 so that sampling interval of 50 milliseconds cannot detect saturations that last
 for less than 100 milliseconds.
+
+### Running Containerized Example
+It is also possible to run `milli-stress` from within a Docker container,
+using [`rAdvisor`](https://github.com/elba-docker/radvisor) as an alternative to Collectl
+to instrument the CPU utilization.
+This example has been run on the same machine as previously described,
+so **the above instructions can be re-used up until the point of installing Collectl.**
+
+Instead, [install Docker](https://docs.docker.com/engine/install/ubuntu/) if it is not already installed
+(These instructions are for Ubuntu 18.04):
+```
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn apt-key add -
+$ sudo add-apt-repository \
+  "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) \
+  stable"
+$ sudo apt-get update
+$ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  containerd.io=1.2.10-3 \
+  docker-ce=5:19.03.4~3-0~ubuntu-$(lsb_release -cs) \
+  docker-ce-cli=5:19.03.4~3-0~ubuntu-$(lsb_release -cs)
+$ cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+$ sudo mkdir -p /etc/systemd/system/docker.service.d
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart docker
+```
+
+Clone this repository:
+```
+$ git clone https://github.com/rodrigoalveslima/milli-stress.git
+$ cd milli-stress
+```
+
+Build and tag the container:
+```
+$ sudo docker build . --tag milli-stress
+```
+
+Download the [latest version of rAdvisor](https://github.com/elba-docker/radvisor/releases/latest):
+```
+$ curl -L https://github.com/elba-docker/radvisor/releases/download/v1.3.0/radvisor-linux-amd64 --output ./radvisor
+$ chmod +x ./radvisor
+```
+
+Run `milli-stress` with the same config as the above example:
+start monitoring the CPU utilization with a sampling interval of 50
+milliseconds, generate CPU saturations that last around [TODO] milliseconds
+every 5 seconds for 1 minute, and finally stop the monitor.
+```
+$ sudo nice -n -1 ./radvisor run docker --quiet --directory ./logs & \
+  sudo docker run milli-stress 10000000 60 5 0; \
+  sudo pkill radvisor
+```
