@@ -207,7 +207,7 @@ start monitoring the CPU utilization with a sampling interval of 50
 milliseconds, generate CPU saturations that last around [TODO] milliseconds
 every 5 seconds for 1 minute, and finally stop the monitor.
 ```
-$ sudo nice -n -1 ./radvisor run docker --quiet --directory ./logs & \
+$ sudo nice -n -1 ./radvisor run docker -i 50ms --quiet --directory ./logs & \
   sudo docker run milli-stress 10000000 60 5 0; \
   sudo pkill radvisor
 ```
